@@ -1,13 +1,13 @@
-package org.example;
+package org.example.TCP;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class Client {
     public static void main(String[] args){
         runClient();
     }
+
     public static void runClient(){
 
         try(Socket client=new Socket("127.0.0.1",3000)){
@@ -27,8 +27,6 @@ public class Client {
                 System.out.println(response);
 
             }
-
-
 
             reader.close();
             writer.close();
