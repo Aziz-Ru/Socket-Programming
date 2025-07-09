@@ -2,12 +2,10 @@ package org.example.Email;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
@@ -19,6 +17,76 @@ public class Sendmail {
 
     getIpAddress();
 
+    }
+
+    static   BufferedReader reader;
+    static BufferedWriter writer;
+
+    static void sendMail(){
+        String smtpServer="smtp.gmail.com";
+        int port=465;
+        String sendMail="s2111076121@ru.ac.bd";
+        String rcptMail="aziz29ru@gmail.com";
+        String password="zzfw ixwf guzw imcz ";
+
+        String title="2111076121";
+        String message= LocalDateTime.now().toLocalDate().toString();
+
+        try(SSLSocket server= (SSLSocket) SSLSocketFactory.getDefault().createSocket(smtpServer,port)){
+
+            reader=new BufferedReader(new InputStreamReader(server.getInputStream()));
+            writer=new BufferedWriter(new OutputStreamWriter(server.getOutputStream()));
+
+            send("EHLO "+smtpServer);
+            receive();
+            receive();
+            receive();
+            receive();
+            receive();
+            receive();
+            receive();
+            receive();
+            receive();
+            send("AUTH LOGIN");
+            receive();
+            send(new String(Base64.getEncoder().encode(sendMail.getBytes())));
+            receive();
+            send(new String(Base64.getEncoder().encode(password.getBytes())));
+            receive();
+            send("MAIL FROM:<"+sendMail+">");
+            receive();
+            send("RCPT TO:<"+rcptMail+">");
+            receive();
+            send("DATA");
+            receive();
+            send("FROM:"+sendMail);
+            send("TO:"+rcptMail);
+            send("Subject:"+title);
+            send(message);
+            send(".");
+            receive();
+            send("QUIT");
+            receive();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+    static void send(String cmd){
+        try{
+            writer.write(cmd+"\r\n");
+            writer.flush();
+            System.out.println("Client: "+cmd);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    static void receive(){
+        try{
+            System.out.println("Server: "+reader.readLine());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public  static void getIpAddress(){
@@ -80,77 +148,6 @@ public class Sendmail {
         }
     }
 
-
-    public static  void  sendMail(){
-//        Scanner scanner=new Scanner(System.in);
-        String smtpServer="smtp.gmail.com";
-        int smtpPort=465;
-        String title="This Send Mail Job Done By Java";
-        String body="Ow Can You Send Message Guy";
-//        System.out.println("Enter Sender Email:");
-        String email="**@gm.com";
-//        System.out.println("Enter Sender Email Password");
-        String password="*****#";
-//        System.out.println("Enter Receiver Email:");
-        String receiver="aziu@gmail.com";
-
-        try (SSLSocket socket=(SSLSocket) SSLSocketFactory.getDefault().createSocket(smtpServer,smtpPort)){
-
-            BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            sendCMD(writer,"EHLO "+smtpServer+"\r\n");
-
-            printServerResponse(reader);
-            printServerResponse(reader);
-            printServerResponse(reader);
-            printServerResponse(reader);
-            printServerResponse(reader);
-            printServerResponse(reader);
-            printServerResponse(reader);
-            printServerResponse(reader);
-            printServerResponse(reader);
-
-            sendCMD(writer,"AUTH LOGIN\r\n");
-            sendCMD(writer,new String(Base64.getEncoder().encode(email.getBytes(StandardCharsets.UTF_8)))+"\r\n");
-            sendCMD(writer,new String(Base64.getEncoder().encode(password.getBytes(StandardCharsets.UTF_8)))+"\r\n");
-            sendCMD(writer,"MAIL FROM:<"+email+">\r\n");
-            sendCMD(writer,"RCPT TO:<"+receiver+">\r\n");
-            sendCMD(writer,"DATA\r\n");
-            sendCMD(writer,"FROM: "+email+"\r\n");
-            sendCMD(writer,"TO: "+receiver+"\r\n");
-            sendCMD(writer,"Subject: "+title+"\r\n");
-            sendCMD(writer,body+"\r\n");
-            sendCMD(writer,".\r\n");
-            printServerResponse(reader);
-            sendCMD(writer,"QUIT\r\n");
-            printServerResponse(reader);
-
-            writer.close();
-            reader.close();
-            System.out.println("Email sent Successfully");
-
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public static void printServerResponse(BufferedReader reader){
-       try {
-           System.out.println("Server:"+reader.readLine());
-       } catch (Exception e) {
-           throw new RuntimeException(e);
-       }
-    }
-    public static void   sendCMD(BufferedWriter writer,String cmd){
-        try{
-            writer.write(cmd);
-            writer.flush();
-            Thread.sleep(100);
-            System.out.println("Command:"+cmd);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
 }
+
+
